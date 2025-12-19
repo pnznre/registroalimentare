@@ -217,9 +217,10 @@
 <div id="toast" class="toast">Dati salvati correttamente</div>
 
 <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js");
-}
+/* =========================
+   UI / DATA / ORA
+========================= */
+
 function impostaDataOraCorrente() {
   const now = new Date();
   const yyyy = now.getFullYear();
@@ -238,7 +239,8 @@ function aggiornaIntestazioneGiorno() {
   const dd = String(oggi.getDate()).padStart(2,'0');
   const mm = String(oggi.getMonth()+1).padStart(2,'0');
   const yyyy = oggi.getFullYear();
-  document.getElementById("header-day").textContent = `${dd}/${mm}/${yyyy} ${giorni[oggi.getDay()]}`;
+  document.getElementById("header-day").textContent =
+    `${dd}/${mm}/${yyyy} ${giorni[oggi.getDay()]}`;
 }
 
 function gestisciCategoria() {
@@ -261,35 +263,17 @@ function mostraToast() {
   setTimeout(() => t.classList.remove("show"), 2500);
 }
 
-function inviaDati() {
-  const dati = {
-    giorno: document.getElementById("giorno").value,
-    ora: document.getElementById("ora").value,
-    num: document.getElementById("num").value,
-    tipo: document.getElementById("tipo").value,
-    categoria: document.getElementById("categoria").value,
-    scala: document.getElementById("scala").value,
-    testo: document.getElementById("testo").value
-  };
-
-  google.script.run.withSuccessHandler(() => {
-    mostraToast();
-    resetForm();
-  }).salvaDati(dati);
-}
-
 function resetForm() {
   document.getElementById("registroForm").reset();
   impostaDataOraCorrente();
   gestisciCategoria();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  aggiornaIntestazioneGiorno();
-  impostaDataOraCorrente();
-});
+/* =========================
+   DATABASE – IndexedDB
+========================= */
 
-  let db;
+let db;
 
 function apriDB() {
   return new Promise((resolve, reject) => {
@@ -311,11 +295,64 @@ function apriDB() {
       resolve();
     };
 
-    richiesta.onerror = () => reject("Errore apertura DB");
+    richiesta.onerror = () => {
+      alert("Errore apertura database");
+      reject();
+    };
   });
 }
+
+function salvaInLocale(dati) {
+  const tx = db.transaction("voci", "readwrite");
+  const store = tx.objectStore("voci");
+
+  store.add({
+    ...dati,
+    timestamp: Date.now()
+  });
+
+  tx.oncomplete = () => {
+    mostraToast();
+    resetForm();
+  };
+
+  tx.onerror = () => {
+    alert("Errore nel salvataggio dei dati");
+  };
+}
+
+/* =========================
+   INVIO DATI
+========================= */
+
+function inviaDati() {
+  const dati = {
+    giorno: document.getElementById("giorno").value,
+    ora: document.getElementById("ora").value,
+    num: document.getElementById("num").value,
+    tipo: document.getElementById("tipo").value,
+    categoria: document.getElementById("categoria").value,
+    scala: document.getElementById("scala").value,
+    testo: document.getElementById("testo").value
+  };
+
+  salvaInLocale(dati);
+}
+
+/* =========================
+   AVVIO APP
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+  aggiornaIntestazioneGiorno();
+  impostaDataOraCorrente();
+  gestisciCategoria();
+  apriDB();
+});
 </script>
+
 
 </body>
 </html>
+
 
