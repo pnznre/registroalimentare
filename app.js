@@ -1,3 +1,6 @@
+const giorno = document.getElementById("giorno");
+const ora = document.getElementById("ora");
+const headerDay = document.getElementById("headerDay");
 let voceInModifica = null;
 
 /* =========================
@@ -104,8 +107,13 @@ function resetForm() {
 }
 
 function impostaDataOraCorrente() {
+  if (!giorno || !ora) return;
+
   const now = new Date();
+  // Giorno in formato YYYY-MM-DD
   giorno.value = now.toISOString().slice(0,10);
+
+  // Ora in formato HH:MM
   ora.value = now.toTimeString().slice(0,5);
 }
 
