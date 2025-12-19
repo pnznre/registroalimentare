@@ -1,71 +1,93 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Registro Alimentare</title>
-
-<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
-<meta name="theme-color" content="#4CAF50">
 </head>
-
 <body>
 
 <div class="container">
-  <div id="header-day" class="header-day"></div>
+  <div id="headerDay" class="header-day"></div>
 
   <form id="registroForm" onsubmit="inviaDati(); return false;">
     <div class="row">
-      <input type="date" id="giorno">
-      <input type="time" id="ora">
-      <div id="headerDay" class="header-day"></div>
+      <div class="field">
+        <label>Giorno</label>
+        <input type="date" id="giorno">
+      </div>
+      <div class="field">
+        <label>Ora</label>
+        <input type="time" id="ora">
+      </div>
+      <div class="field" style="justify-content:flex-end;">
+        <label>&nbsp;</label>
+        <button type="button" class="btn-reset" onclick="resetForm()">Reset</button>
+      </div>
     </div>
 
     <div class="row numTipo">
-      <input id="num" placeholder="Num">
-      <input id="tipo" placeholder="Tipo">
+      <div class="field numBox">
+        <label>Num</label>
+        <input type="text" id="num" maxlength="4">
+      </div>
+      <div class="field tipoBox">
+        <label>Tipo</label>
+        <input list="tipoLista" id="tipo">
+        <datalist id="tipoLista">
+          <option value="tazza">
+          <option value="bicchiere">
+          <option value="fetta">
+          <option value="cialda">
+          <option value="confezione">
+          <option value="busta">
+        </datalist>
+      </div>
     </div>
 
-    <select id="categoria" onchange="gestisciCategoria()">
-      <option>Alimenti</option>
-      <option>Bevande</option>
-      <option>Sintomi</option>
-      <option>Bagno</option>
-      <option>Osservazioni</option>
-    </select>
+    <div class="row">
+      <div class="field categoriaBox">
+        <label>Categoria</label>
+        <select id="categoria" onchange="gestisciCategoria()">
+          <option value="Alimenti">Alimenti</option>
+          <option value="Bevande">Bevande</option>
+          <option value="Sonno">Sonno</option>
+          <option value="Sintomi">Sintomi</option>
+          <option value="Bagno">Bagno</option>
+          <option value="Osservazioni">Osservazioni</option>
+          <option value="Altro">Altro</option>
+        </select>
+      </div>
+      <div class="field scalaBox" id="scalaContainer" style="display:none;">
+        <label>Scala</label>
+        <select id="scala">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+    </div>
 
-    <select id="scala" style="display:none">
-      <option>1</option><option>2</option><option>3</option>
-      <option>4</option><option>5</option>
-    </select>
+    <div class="field">
+      <label>Dati</label>
+      <textarea id="testo" placeholder="Scrivi qui..."></textarea>
+    </div>
 
-    <textarea id="testo" placeholder="Scrivi..."></textarea>
-
-    <button class="btn-submit btn-main">Invia</button>
+    <button type="submit" class="btn-submit">Invia</button>
   </form>
 
-  <button class="btn-submit btn-blue" onclick="mostraElenco()">📋 Vedi registro</button>
-
-  <div class="actions">
-    <button class="btn-submit btn-purple" onclick="exportJSON()">📦 JSON</button>
-    <button class="btn-submit btn-orange" onclick="exportCSV()">📤 CSV</button>
+  <div class="buttons-export">
+    <button onclick="exportCSV()">Esporta CSV</button>
+    <button onclick="exportJSON()">Esporta JSON</button>
   </div>
 
-  <div id="lista"></div>
+  <div id="listaVoci" class="lista-voci"></div>
 </div>
-
-<div id="toast" class="toast">Salvato</div>
 
 <script src="db.js"></script>
 <script src="app.js"></script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js");
-}
-</script>
-
 </body>
 </html>
-
