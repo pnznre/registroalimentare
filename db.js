@@ -11,12 +11,21 @@ function initDB() {
 
   request.onsuccess = e => {
     db = e.target.result;
-    mostraVoci();
+    // quando DB pronto, chiamiamo il callback globale
+    if (typeof onDBReadyCallback === "function") onDBReadyCallback();
   };
 
   request.onerror = () => alert("Errore apertura database");
 }
 
+// Callback helper
+let onDBReadyCallback = null;
+function onDBReady(callback) {
+  if (db) callback();
+  else onDBReadyCallback = callback;
+}
+
+// ==================== CRUD ====================
 function salvaVoce(voce) {
   const tx = db.transaction("voci", "readwrite");
   tx.objectStore("voci").add(voce);
@@ -42,7 +51,6 @@ function leggiTutteLeVoci(callback) {
 }
 
 // ==================== EXPORT ====================
-
 function exportCSV() {
   leggiTutteLeVoci(dati => {
     if (!dati.length) return alert("Nessun dato da esportare");
