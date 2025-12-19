@@ -1,6 +1,6 @@
 let voceInModifica = null;
 
-// Riferimenti DOM
+// DOM
 const giorno = document.getElementById("giorno");
 const ora = document.getElementById("ora");
 const categoria = document.getElementById("categoria");
@@ -14,9 +14,12 @@ const listaVoci = document.getElementById("listaVoci");
 // ==================== AVVIO ====================
 document.addEventListener("DOMContentLoaded", () => {
   initDB();
-  impostaDataOraCorrente();
-  aggiornaIntestazioneGiorno();
-  gestisciCategoria();
+  onDBReady(() => {
+    mostraVoci();
+    impostaDataOraCorrente();
+    aggiornaIntestazioneGiorno();
+    gestisciCategoria();
+  });
 });
 
 // ==================== FORM ====================
@@ -49,7 +52,7 @@ function inviaDati() {
   mostraVoci();
 }
 
-// ==================== ELENCO ====================
+// ==================== REGISTRO ====================
 function mostraVoci() {
   if (!listaVoci) return;
   listaVoci.innerHTML = "";
@@ -99,7 +102,7 @@ function modificaVoce(id) {
   });
 }
 
-// ==================== UTILITÀ ====================
+// ==================== UTIL ====================
 function resetForm() {
   document.getElementById("registroForm").reset();
   impostaDataOraCorrente();
@@ -139,4 +142,3 @@ function gestisciCategoria() {
     numTipo.forEach(e => e.style.display = "flex");
   }
 }
-
