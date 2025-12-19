@@ -71,7 +71,6 @@ function exportCSV() {
   leggiTutteLeVoci(dati => {
     if (!dati.length) return alert("Nessun dato da esportare");
 
-    // intestazioni (13 colonne)
     const header = [
       "Data","Ora","Num","Tipo",
       "Alimenti","Bevande","Sonno",
@@ -83,14 +82,15 @@ function exportCSV() {
     const righe = [header.join(",")];
 
     dati.forEach(v => {
-      // formatta la data gg/mm/aaaa
+      // parsing manuale della data ISO yyyy-mm-dd → dd/mm/yyyy
       let dataFormatted = "";
       if (v.giorno) {
-        const d = new Date(v.giorno);
-        const dd = String(d.getDate()).padStart(2,'0');
-        const mm = String(d.getMonth()+1).padStart(2,'0');
-        const yyyy = d.getFullYear();
-        dataFormatted = `${dd}/${mm}/${yyyy}`;
+        const parts = v.giorno.split("-");
+        if (parts.length === 3) {
+          dataFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        } else {
+          dataFormatted = v.giorno; // fallback
+        }
       }
 
       const riga = [
@@ -109,7 +109,6 @@ function exportCSV() {
         (v.categoria && !["Alimenti","Bevande","Sonno","Sintomi","Bagno","Osservazioni"].includes(v.categoria)) ? v.testo || "" : ""
       ];
 
-      // escape doppie virgolette
       righe.push(riga.map(c => `"${String(c).replace(/"/g,'""')}"`).join(","));
     });
 
