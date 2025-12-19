@@ -232,6 +232,15 @@
   <button class="btn-submit" style="background:#2196F3" onclick="mostraElenco()">
   📋 Vedi registro
   </button>
+  
+  <div style="display:flex; gap:10px; margin-top:10px;">
+  <button class="btn-submit" style="background:#9C27B0" onclick="exportJSON()">
+    📦 Export JSON
+  </button>
+  <button class="btn-submit" style="background:#FF9800" onclick="exportCSV()">
+    📤 Export CSV
+  </button>
+</div>
 
 <div id="lista" style="margin-top:16px; display:none;"></div>
 
@@ -467,11 +476,88 @@ document.addEventListener("DOMContentLoaded", () => {
   gestisciCategoria();
   apriDB();
 });
+
+function leggiTutteLeVoci(callback) {
+  const tx = db.transaction("voci", "readonly");
+  const store = tx.objectStore("voci");
+  const req = store.getAll();
+
+  req.onsuccess = () => callback(req.result || []);
+  req.onerror = () => alert("Errore lettura dati");
+}
+
+  function exportJSON() {
+  leggiTutteLeVoci(dati => {
+    if (!dati.length) {
+      alert("Nessun dato da esportare");
+      return;
+    }
+
+    const blob = new Blob(
+      [JSON.stringify(dati, null, 2)],
+      { type: "application/json" }
+    );
+
+    scaricaFile(blob, "registro_alimentare.json");
+  });
+}
+
+  function exportCSV() {
+  leggiTutteLeVoci(dati => {
+    if (!dati.length) {
+      alert("Nessun dato da esportare");
+      return;
+    }
+
+    // intestazioni
+    const header = [
+      "giorno","ora","categoria","num","tipo",
+      "scala","testo","timestamp"
+    ];
+
+    const righe = [header.join(",")];
+
+    dati.forEach(v => {
+      const riga = [
+        v.giorno,
+        v.ora,
+        v.categoria,
+        v.num || "",
+        v.tipo || "",
+        v.scala || "",
+        `"${(v.testo || "").replace(/"/g,'""')}"`,
+        v.timestamp
+      ];
+      righe.push(riga.join(","));
+    });
+
+    const blob = new Blob(
+      [righe.join("\n")],
+      { type: "text/csv;charset=utf-8;" }
+    );
+
+    scaricaFile(blob, "registro_alimentare.csv");
+  });
+}
+
+  function scaricaFile(blob, nomeFile) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nomeFile;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+  
 </script>
 
 
 </body>
 </html>
+
 
 
 
