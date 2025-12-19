@@ -1,20 +1,25 @@
-const giorno = document.getElementById("giorno");
-const ora = document.getElementById("ora");
-const headerDay = document.getElementById("headerDay");
 let voceInModifica = null;
 
-/* =========================
-   AVVIO APP
-========================= */
+// Riferimenti DOM
+const giorno = document.getElementById("giorno");
+const ora = document.getElementById("ora");
+const categoria = document.getElementById("categoria");
+const num = document.getElementById("num");
+const tipo = document.getElementById("tipo");
+const scala = document.getElementById("scala");
+const testo = document.getElementById("testo");
+const headerDay = document.getElementById("headerDay");
+const listaVoci = document.getElementById("listaVoci");
+
+// ==================== AVVIO ====================
 document.addEventListener("DOMContentLoaded", () => {
   initDB();
   impostaDataOraCorrente();
   aggiornaIntestazioneGiorno();
+  gestisciCategoria();
 });
 
-/* =========================
-   FORM
-========================= */
+// ==================== FORM ====================
 function inviaDati() {
   const voce = {
     giorno: giorno.value,
@@ -44,14 +49,10 @@ function inviaDati() {
   mostraVoci();
 }
 
-/* =========================
-   ELENCO
-========================= */
+// ==================== ELENCO ====================
 function mostraVoci() {
-  const contenitore = document.getElementById("listaVoci");
-  if (!contenitore) return;
-
-  contenitore.innerHTML = "";
+  if (!listaVoci) return;
+  listaVoci.innerHTML = "";
 
   leggiTutteLeVoci(voci => {
     voci.sort((a,b) => b.timestamp - a.timestamp);
@@ -60,8 +61,10 @@ function mostraVoci() {
       const div = document.createElement("div");
       div.className = "voce";
 
+      const dataDisplay = formattaGiornoDisplay(v.giorno);
+
       div.innerHTML = `
-        <strong>${v.giorno} ${v.ora}</strong><br>
+        <strong>${dataDisplay} ${v.ora}</strong><br>
         <em>${v.categoria}</em><br>
         ${v.num ? v.num + " " + v.tipo + "<br>" : ""}
         ${v.scala ? "Scala: " + v.scala + "<br>" : ""}
@@ -71,14 +74,12 @@ function mostraVoci() {
           <button onclick="eliminaVoce(${v.id})">🗑️</button>
         </div>
       `;
-      contenitore.appendChild(div);
+      listaVoci.appendChild(div);
     });
   });
 }
 
-/* =========================
-   MODIFICA
-========================= */
+// ==================== MODIFICA ====================
 function modificaVoce(id) {
   leggiTutteLeVoci(voci => {
     const v = voci.find(x => x.id === id);
@@ -93,35 +94,48 @@ function modificaVoce(id) {
     testo.value = v.testo || "";
 
     voceInModifica = id;
+    gestisciCategoria();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 }
 
-/* =========================
-   UTILITÀ
-========================= */
+// ==================== UTILITÀ ====================
 function resetForm() {
   document.getElementById("registroForm").reset();
   impostaDataOraCorrente();
   voceInModifica = null;
+  gestisciCategoria();
 }
 
 function impostaDataOraCorrente() {
   if (!giorno || !ora) return;
-
   const now = new Date();
-  // Giorno in formato YYYY-MM-DD
   giorno.value = now.toISOString().slice(0,10);
-
-  // Ora in formato HH:MM
   ora.value = now.toTimeString().slice(0,5);
 }
 
 function aggiornaIntestazioneGiorno() {
   const giorni = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
   const oggi = new Date();
-  headerDay.textContent =
-    oggi.toLocaleDateString("it-IT") +
-    " " +
-    giorni[oggi.getDay()];
+  headerDay.textContent = oggi.toLocaleDateString("it-IT") + " " + giorni[oggi.getDay()];
+}
+
+function formattaGiornoDisplay(giornoStr) {
+  const parts = giornoStr.split("-");
+  if(parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return giornoStr;
+}
+
+function gestisciCategoria() {
+  const scalaContainer = document.getElementById("scalaContainer");
+  const numTipo = document.querySelectorAll(".numTipo");
+  if (!scalaContainer) return;
+
+  if (categoria.value === "Sintomi" || categoria.value === "Bagno") {
+    scalaContainer.style.display = "flex";
+    numTipo.forEach(e => e.style.display = "none");
+  } else {
+    scalaContainer.style.display = "none";
+    numTipo.forEach(e => e.style.display = "flex");
+  }
 }
