@@ -17,8 +17,6 @@ function initDB() {
   request.onerror = () => alert("Errore apertura database");
 }
 
-// ==================== CRUD ====================
-
 function salvaVoce(voce) {
   const tx = db.transaction("voci", "readwrite");
   tx.objectStore("voci").add(voce);
@@ -60,7 +58,6 @@ function exportCSV() {
     const righe = [header.join(",")];
 
     dati.forEach(v => {
-      // Data in gg/mm/aaaa
       let dataFormatted = "";
       if (v.giorno) {
         const parts = v.giorno.split("-");
