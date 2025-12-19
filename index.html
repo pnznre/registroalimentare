@@ -1,564 +1,69 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4CAF50">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Registro Alimentare</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f0f0f0;
-    margin: 0;
-    padding: 12px;
-  }
 
-  .container {
-    max-width: 400px;
-    margin: auto;
-    background: #ffffff;
-    padding: 18px;
-    border-radius: 16px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-    box-sizing: border-box;
-  }
-
-  .header-day {
-    text-align: center;
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 16px;
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-  }
-
-  label {
-    font-weight: bold;
-    font-size: 14px;
-    margin-bottom: 4px;
-  }
-
-  input, select, textarea {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-  }
-
-  textarea {
-    min-height: 90px;
-    resize: vertical;
-  }
-
-  .numBox {
-    width: 90px;
-  }
-
-  .tipoBox {
-    flex: 1;
-  }
-
-  .categoriaBox {
-    flex: 1;
-  }
-
-  .scalaBox {
-    width: 110px;
-  }
-
-  .buttons {
-    display: flex;
-    gap: 10px;
-  }
-
-  .btn-submit {
-    flex: 1;
-    padding: 14px;
-    font-size: 18px;
-    font-weight: bold;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-  }
-
-  .btn-reset {
-    padding: 14px 18px;
-    font-size: 16px;
-    background: #f44336;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-  }
-
-  .toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 20px;
-    font-size: 14px;
-    opacity: 0;
-    transition: opacity 0.4s;
-    z-index: 9999;
-  }
-
-  .toast.show {
-    opacity: 1;
-  }
-  
-  .voce {
-  background: #f7f7f7;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 8px;
-  font-size: 14px;
-}
-
-.voce strong {
-  font-size: 15px;
-}
-
-.voce small {
-  color: #555;
-}
-</style>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<meta name="theme-color" content="#4CAF50">
 </head>
+
 <body>
 
 <div class="container">
-
   <div id="header-day" class="header-day"></div>
 
   <form id="registroForm" onsubmit="inviaDati(); return false;">
-
-    <!-- RIGA DATA / ORA / RESET -->
     <div class="row">
-      <div class="field">
-        <label>Giorno</label>
-        <input type="date" id="giorno">
-      </div>
-      <div class="field">
-        <label>Ora</label>
-        <input type="time" id="ora">
-      </div>
-      <div class="field" style="justify-content:flex-end;">
-        <label>&nbsp;</label>
-        <button type="button" class="btn-reset" onclick="resetForm()">Reset</button>
-      </div>
+      <input type="date" id="giorno">
+      <input type="time" id="ora">
     </div>
 
-    <!-- RIGA NUM + TIPO -->
     <div class="row numTipo">
-      <div class="field numBox">
-        <label>Num</label>
-        <input type="text" id="num" maxlength="4">
-      </div>
-      <div class="field tipoBox">
-        <label>Tipo</label>
-        <input list="tipoLista" id="tipo">
-        <datalist id="tipoLista">
-          <option value="tazza">
-          <option value="bicchiere">
-          <option value="fetta">
-          <option value="cialda">
-          <option value="confezione">
-          <option value="busta">
-        </datalist>
-      </div>
+      <input id="num" placeholder="Num">
+      <input id="tipo" placeholder="Tipo">
     </div>
 
-    <!-- RIGA CATEGORIA + SCALA -->
-    <div class="row">
-      <div class="field categoriaBox">
-        <label>Categoria</label>
-        <select id="categoria" onchange="gestisciCategoria()">
-          <option value="Alimenti">Alimenti</option>
-          <option value="Bevande">Bevande</option>
-          <option value="Sonno">Sonno</option>
-          <option value="Sintomi">Sintomi</option>
-          <option value="Bagno">Bagno</option>
-          <option value="Osservazioni">Osservazioni</option>
-          <option value="Altro">Altro</option>
-        </select>
-      </div>
-      <div class="field scalaBox" id="scalaContainer" style="display:none;">
-        <label>Scala</label>
-        <select id="scala">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
-      </div>
-    </div>
+    <select id="categoria" onchange="gestisciCategoria()">
+      <option>Alimenti</option>
+      <option>Bevande</option>
+      <option>Sintomi</option>
+      <option>Bagno</option>
+      <option>Osservazioni</option>
+    </select>
 
-    <!-- RIGA DATI -->
-    <div class="field">
-      <label>Dati</label>
-      <textarea id="testo" placeholder="Scrivi qui..."></textarea>
-    </div>
+    <select id="scala" style="display:none">
+      <option>1</option><option>2</option><option>3</option>
+      <option>4</option><option>5</option>
+    </select>
 
-    <!-- INVIA -->
-    <button type="submit" class="btn-submit">Invia</button>
+    <textarea id="testo" placeholder="Scrivi..."></textarea>
 
+    <button class="btn-submit btn-main">Invia</button>
   </form>
-  
-  <button class="btn-submit" style="background:#2196F3" onclick="mostraElenco()">
-  📋 Vedi registro
-  </button>
-  
-  <div style="display:flex; gap:10px; margin-top:10px;">
-  <button class="btn-submit" style="background:#9C27B0" onclick="exportJSON()">
-    📦 Export JSON
-  </button>
-  <button class="btn-submit" style="background:#FF9800" onclick="exportCSV()">
-    📤 Export CSV
-  </button>
+
+  <button class="btn-submit btn-blue" onclick="mostraElenco()">📋 Vedi registro</button>
+
+  <div class="actions">
+    <button class="btn-submit btn-purple" onclick="exportJSON()">📦 JSON</button>
+    <button class="btn-submit btn-orange" onclick="exportCSV()">📤 CSV</button>
+  </div>
+
+  <div id="lista"></div>
 </div>
 
-<div id="lista" style="margin-top:16px; display:none;"></div>
+<div id="toast" class="toast">Salvato</div>
 
-<div id="lista" style="margin-top:16px; display:none;"></div>
-
-</div>
-
-<div id="toast" class="toast">Dati salvati correttamente</div>
+<script src="db.js"></script>
+<script src="app.js"></script>
 
 <script>
-/* =========================
-   UI / DATA / ORA
-========================= */
-
-function impostaDataOraCorrente() {
-  const now = new Date();
-  const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  document.getElementById("giorno").value = `${yyyy}-${mm}-${dd}`;
-
-  const hh = String(now.getHours()).padStart(2, '0');
-  const min = String(now.getMinutes()).padStart(2, '0');
-  document.getElementById("ora").value = `${hh}:${min}`;
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
 }
-
-function aggiornaIntestazioneGiorno() {
-  const giorni = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
-  const oggi = new Date();
-  const dd = String(oggi.getDate()).padStart(2,'0');
-  const mm = String(oggi.getMonth()+1).padStart(2,'0');
-  const yyyy = oggi.getFullYear();
-  document.getElementById("header-day").textContent =
-    `${dd}/${mm}/${yyyy} ${giorni[oggi.getDay()]}`;
-}
-
-function gestisciCategoria() {
-  const cat = document.getElementById("categoria").value;
-  const scala = document.getElementById("scalaContainer");
-  const numTipo = document.querySelectorAll('.numTipo');
-
-  if (cat === "Sintomi" || cat === "Bagno") {
-    scala.style.display = "flex";
-    numTipo.forEach(e => e.style.display = "none");
-  } else {
-    scala.style.display = "none";
-    numTipo.forEach(e => e.style.display = "flex");
-  }
-}
-
-function mostraToast() {
-  const t = document.getElementById("toast");
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2500);
-}
-
-function resetForm() {
-  document.getElementById("registroForm").reset();
-  impostaDataOraCorrente();
-  gestisciCategoria();
-}
-
-/* =========================
-   DATABASE – IndexedDB
-========================= */
-
-let db;
-let idInModifica = null;
-  
-function apriDB() {
-  return new Promise((resolve, reject) => {
-    const richiesta = indexedDB.open("registroAlimentareDB", 1);
-
-    richiesta.onupgradeneeded = e => {
-      db = e.target.result;
-      if (!db.objectStoreNames.contains("voci")) {
-        const store = db.createObjectStore("voci", {
-          keyPath: "id",
-          autoIncrement: true
-        });
-        store.createIndex("giorno", "giorno", { unique: false });
-      }
-    };
-
-    richiesta.onsuccess = e => {
-      db = e.target.result;
-      resolve();
-    };
-
-    richiesta.onerror = () => {
-      alert("Errore apertura database");
-      reject();
-    };
-  });
-}
-
-function salvaInLocale(dati) {
-  const tx = db.transaction("voci", "readwrite");
-  const store = tx.objectStore("voci");
-
-  if (idInModifica !== null) {
-    // UPDATE
-    store.put({
-      id: idInModifica,
-      ...dati,
-      timestamp: Date.now()
-    });
-  } else {
-    // INSERT
-    store.add({
-      ...dati,
-      timestamp: Date.now()
-    });
-  }
-
-  tx.oncomplete = () => {
-    idInModifica = null;
-    mostraToast();
-    resetForm();
-    mostraElenco(); // refresh lista
-  };
-
-  tx.onerror = () => {
-    alert("Errore nel salvataggio");
-  };
-}
-
-/* =========================
-   INVIO DATI
-========================= */
-
-function inviaDati() {
-  const dati = {
-    giorno: document.getElementById("giorno").value,
-    ora: document.getElementById("ora").value,
-    num: document.getElementById("num").value,
-    tipo: document.getElementById("tipo").value,
-    categoria: document.getElementById("categoria").value,
-    scala: document.getElementById("scala").value,
-    testo: document.getElementById("testo").value
-  };
-
-  salvaInLocale(dati);
-}
-
-/* =========================
-   AVVIO APP
-========================= */
-function mostraElenco() {
-  const contenitore = document.getElementById("lista");
-  contenitore.style.display = "block";
-  contenitore.innerHTML = "<em>Caricamento...</em>";
-
-  const tx = db.transaction("voci", "readonly");
-  const store = tx.objectStore("voci");
-  const richiesta = store.getAll();
-
-  richiesta.onsuccess = () => {
-    const dati = richiesta.result;
-
-    if (!dati.length) {
-      contenitore.innerHTML = "<em>Nessun dato salvato</em>";
-      return;
-    }
-
-    dati.sort((a, b) => b.timestamp - a.timestamp);
-    contenitore.innerHTML = "";
-
-    dati.forEach(v => {
-      const div = document.createElement("div");
-      div.className = "voce";
-
-      div.innerHTML = `
-        <strong>${v.giorno} ${v.ora}</strong><br>
-        <small>${v.categoria}</small><br>
-        ${v.num ? v.num + " " + v.tipo + " – " : ""}
-        ${v.testo || ""}
-        ${v.scala ? "<br>Scala: " + v.scala : ""}
-        <div style="margin-top:8px;">
-          <button onclick="modificaVoce(${v.id})">✏️</button>
-          <button onclick="cancellaVoce(${v.id})">🗑️</button>
-        </div>
-      `;
-
-      contenitore.appendChild(div);
-    });
-  };
-
-  richiesta.onerror = () => {
-    contenitore.innerHTML = "Errore lettura dati";
-  };
-}
-  
-function cancellaVoce(id) {
-  if (!confirm("Vuoi cancellare questa voce?")) return;
-
-  const tx = db.transaction("voci", "readwrite");
-  const store = tx.objectStore("voci");
-  store.delete(id);
-
-  tx.oncomplete = () => {
-    mostraElenco();
-  };
-}
-
-  function modificaVoce(id) {
-  const tx = db.transaction("voci", "readonly");
-  const store = tx.objectStore("voci");
-  const richiesta = store.get(id);
-
-  richiesta.onsuccess = () => {
-    const v = richiesta.result;
-    if (!v) return;
-
-    idInModifica = v.id;
-
-    document.getElementById("giorno").value = v.giorno;
-    document.getElementById("ora").value = v.ora;
-    document.getElementById("num").value = v.num || "";
-    document.getElementById("tipo").value = v.tipo || "";
-    document.getElementById("categoria").value = v.categoria;
-    document.getElementById("scala").value = v.scala || "";
-    document.getElementById("testo").value = v.testo || "";
-
-    gestisciCategoria();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  aggiornaIntestazioneGiorno();
-  impostaDataOraCorrente();
-  gestisciCategoria();
-  apriDB();
-});
-
-function leggiTutteLeVoci(callback) {
-  const tx = db.transaction("voci", "readonly");
-  const store = tx.objectStore("voci");
-  const req = store.getAll();
-
-  req.onsuccess = () => callback(req.result || []);
-  req.onerror = () => alert("Errore lettura dati");
-}
-
-  function exportJSON() {
-  leggiTutteLeVoci(dati => {
-    if (!dati.length) {
-      alert("Nessun dato da esportare");
-      return;
-    }
-
-    const blob = new Blob(
-      [JSON.stringify(dati, null, 2)],
-      { type: "application/json" }
-    );
-
-    scaricaFile(blob, "registro_alimentare.json");
-  });
-}
-
-  function exportCSV() {
-  leggiTutteLeVoci(dati => {
-    if (!dati.length) {
-      alert("Nessun dato da esportare");
-      return;
-    }
-
-    // intestazioni
-    const header = [
-      "giorno","ora","categoria","num","tipo",
-      "scala","testo","timestamp"
-    ];
-
-    const righe = [header.join(",")];
-
-    dati.forEach(v => {
-      const riga = [
-        v.giorno,
-        v.ora,
-        v.categoria,
-        v.num || "",
-        v.tipo || "",
-        v.scala || "",
-        `"${(v.testo || "").replace(/"/g,'""')}"`,
-        v.timestamp
-      ];
-      righe.push(riga.join(","));
-    });
-
-    const blob = new Blob(
-      [righe.join("\n")],
-      { type: "text/csv;charset=utf-8;" }
-    );
-
-    scaricaFile(blob, "registro_alimentare.csv");
-  });
-}
-
-  function scaricaFile(blob, nomeFile) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = nomeFile;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-  
 </script>
-
 
 </body>
 </html>
-
-
-
-
-
