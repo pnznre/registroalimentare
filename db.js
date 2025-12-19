@@ -83,8 +83,18 @@ function exportCSV() {
     const righe = [header.join(",")];
 
     dati.forEach(v => {
+      // formatta la data gg/mm/aaaa
+      let dataFormatted = "";
+      if (v.giorno) {
+        const d = new Date(v.giorno);
+        const dd = String(d.getDate()).padStart(2,'0');
+        const mm = String(d.getMonth()+1).padStart(2,'0');
+        const yyyy = d.getFullYear();
+        dataFormatted = `${dd}/${mm}/${yyyy}`;
+      }
+
       const riga = [
-        v.giorno || "",
+        dataFormatted,
         v.ora || "",
         v.num || "",
         v.tipo || "",
@@ -98,7 +108,8 @@ function exportCSV() {
         v.categoria === "Osservazioni" ? v.testo || "" : "",
         (v.categoria && !["Alimenti","Bevande","Sonno","Sintomi","Bagno","Osservazioni"].includes(v.categoria)) ? v.testo || "" : ""
       ];
-      // escape doppie virgolette nel testo
+
+      // escape doppie virgolette
       righe.push(riga.map(c => `"${String(c).replace(/"/g,'""')}"`).join(","));
     });
 
