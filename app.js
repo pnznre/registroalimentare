@@ -139,3 +139,4 @@ function gestisciCategoria() {
     numTipo.forEach(e => e.style.display = "flex");
   }
 }
+
