@@ -1,17 +1,11 @@
 let db;
 
-/* =========================
-   INIZIALIZZAZIONE DATABASE
-========================= */
 function initDB() {
   const request = indexedDB.open("registroAlimentareDB", 1);
 
   request.onupgradeneeded = e => {
     db = e.target.result;
-    const store = db.createObjectStore("voci", {
-      keyPath: "id",
-      autoIncrement: true
-    });
+    const store = db.createObjectStore("voci", { keyPath: "id", autoIncrement: true });
     store.createIndex("giorno", "giorno", { unique: false });
   };
 
@@ -20,14 +14,11 @@ function initDB() {
     mostraVoci();
   };
 
-  request.onerror = () => {
-    alert("Errore apertura database");
-  };
+  request.onerror = () => alert("Errore apertura database");
 }
 
-/* =========================
-   CRUD
-========================= */
+// ==================== CRUD ====================
+
 function salvaVoce(voce) {
   const tx = db.transaction("voci", "readwrite");
   tx.objectStore("voci").add(voce);
@@ -52,20 +43,7 @@ function leggiTutteLeVoci(callback) {
   req.onsuccess = () => callback(req.result || []);
 }
 
-/* =========================
-   EXPORT
-========================= */
-function exportJSON() {
-  leggiTutteLeVoci(dati => {
-    if (!dati.length) return alert("Nessun dato");
-
-    const blob = new Blob(
-      [JSON.stringify(dati, null, 2)],
-      { type: "application/json" }
-    );
-    scaricaFile(blob, "registro_alimentare.json");
-  });
-}
+// ==================== EXPORT ====================
 
 function exportCSV() {
   leggiTutteLeVoci(dati => {
@@ -82,15 +60,12 @@ function exportCSV() {
     const righe = [header.join(",")];
 
     dati.forEach(v => {
-      // parsing manuale della data ISO yyyy-mm-dd → dd/mm/yyyy
+      // Data in gg/mm/aaaa
       let dataFormatted = "";
       if (v.giorno) {
         const parts = v.giorno.split("-");
-        if (parts.length === 3) {
-          dataFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
-        } else {
-          dataFormatted = v.giorno; // fallback
-        }
+        if (parts.length === 3) dataFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        else dataFormatted = v.giorno;
       }
 
       const riga = [
@@ -117,6 +92,13 @@ function exportCSV() {
   });
 }
 
+function exportJSON() {
+  leggiTutteLeVoci(dati => {
+    if (!dati.length) return alert("Nessun dato da esportare");
+    const blob = new Blob([JSON.stringify(dati,null,2)], { type: "application/json" });
+    scaricaFile(blob, "registro_alimentare.json");
+  });
+}
 
 function scaricaFile(blob, nome) {
   const a = document.createElement("a");
