@@ -69,34 +69,44 @@ function exportJSON() {
 
 function exportCSV() {
   leggiTutteLeVoci(dati => {
-    if (!dati.length) return alert("Nessun dato");
+    if (!dati.length) return alert("Nessun dato da esportare");
 
+    // intestazioni (13 colonne)
     const header = [
-      "giorno","ora","categoria","num",
-      "tipo","scala","testo","timestamp"
+      "Data","Ora","Num","Tipo",
+      "Alimenti","Bevande","Sonno",
+      "ScalaSintomi","Sintomi",
+      "ScalaBagno","Bagno",
+      "Osservazioni","Altro"
     ];
+
     const righe = [header.join(",")];
 
     dati.forEach(v => {
-      righe.push([
-        v.giorno,
-        v.ora,
-        v.categoria,
+      const riga = [
+        v.giorno || "",
+        v.ora || "",
         v.num || "",
         v.tipo || "",
-        v.scala || "",
-        `"${(v.testo || "").replace(/"/g,'""')}"`,
-        v.timestamp
-      ].join(","));
+        v.categoria === "Alimenti" ? v.testo || "" : "",
+        v.categoria === "Bevande" ? v.testo || "" : "",
+        v.categoria === "Sonno" ? v.testo || "" : "",
+        v.categoria === "Sintomi" ? v.scala || "" : "",
+        v.categoria === "Sintomi" ? v.testo || "" : "",
+        v.categoria === "Bagno" ? v.scala || "" : "",
+        v.categoria === "Bagno" ? v.testo || "" : "",
+        v.categoria === "Osservazioni" ? v.testo || "" : "",
+        (v.categoria && !["Alimenti","Bevande","Sonno","Sintomi","Bagno","Osservazioni"].includes(v.categoria)) ? v.testo || "" : ""
+      ];
+      // escape doppie virgolette nel testo
+      righe.push(riga.map(c => `"${String(c).replace(/"/g,'""')}"`).join(","));
     });
 
-    const blob = new Blob(
-      [righe.join("\n")],
-      { type: "text/csv;charset=utf-8;" }
-    );
+    const blob = new Blob([righe.join("\n")], { type: "text/csv;charset=utf-8;" });
     scaricaFile(blob, "registro_alimentare.csv");
   });
 }
+
 
 function scaricaFile(blob, nome) {
   const a = document.createElement("a");
