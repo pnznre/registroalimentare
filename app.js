@@ -58,9 +58,13 @@ function mostraVoci() {
   listaVoci.innerHTML = "";
 
   leggiTutteLeVoci(voci => {
+    // Ordina tutte le voci per timestamp decrescente
     voci.sort((a,b) => b.timestamp - a.timestamp);
 
-    voci.forEach(v => {
+    // Prendi solo le prime 5 voci
+    const ultime5 = voci.slice(0, 5);
+
+    ultime5.forEach(v => {
       const div = document.createElement("div");
       div.className = "voce";
 
