@@ -130,6 +130,22 @@
   .toast.show {
     opacity: 1;
   }
+  
+  .voce {
+  background: #f7f7f7;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.voce strong {
+  font-size: 15px;
+}
+
+.voce small {
+  color: #555;
+}
 </style>
 </head>
 <body>
@@ -212,6 +228,15 @@
     <button type="submit" class="btn-submit">Invia</button>
 
   </form>
+  
+  <button class="btn-submit" style="background:#2196F3" onclick="mostraElenco()">
+  📋 Vedi registro
+  </button>
+
+<div id="lista" style="margin-top:16px; display:none;"></div>
+
+<div id="lista" style="margin-top:16px; display:none;"></div>
+
 </div>
 
 <div id="toast" class="toast">Dati salvati correttamente</div>
@@ -342,6 +367,49 @@ function inviaDati() {
 /* =========================
    AVVIO APP
 ========================= */
+function mostraElenco() {
+  const contenitore = document.getElementById("lista");
+  contenitore.style.display = "block";
+  contenitore.innerHTML = "<em>Caricamento...</em>";
+
+  const tx = db.transaction("voci", "readonly");
+  const store = tx.objectStore("voci");
+  const richiesta = store.getAll();
+
+  richiesta.onsuccess = () => {
+    const dati = richiesta.result;
+
+    if (!dati.length) {
+      contenitore.innerHTML = "<em>Nessun dato salvato</em>";
+      return;
+    }
+
+    // ultimi inseriti in alto
+    dati.sort((a, b) => b.timestamp - a.timestamp);
+
+    contenitore.innerHTML = "";
+
+    dati.forEach(v => {
+      const div = document.createElement("div");
+      div.className = "voce";
+
+      div.innerHTML = `
+        <strong>${v.giorno} ${v.ora}</strong><br>
+        <small>${v.categoria}</small><br>
+        ${v.num ? v.num + " " + v.tipo + " – " : ""}
+        ${v.testo || ""}
+        ${v.scala ? "<br>Scala: " + v.scala : ""}
+      `;
+
+      contenitore.appendChild(div);
+    });
+  };
+
+  richiesta.onerror = () => {
+    contenitore.innerHTML = "Errore lettura dati";
+  };
+}
+  
 
 document.addEventListener("DOMContentLoaded", () => {
   aggiornaIntestazioneGiorno();
@@ -354,5 +422,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
+
 
 
