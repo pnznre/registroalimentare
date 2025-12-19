@@ -299,7 +299,8 @@ function resetForm() {
 ========================= */
 
 let db;
-
+let idInModifica = null;
+  
 function apriDB() {
   return new Promise((resolve, reject) => {
     const richiesta = indexedDB.open("registroAlimentareDB", 1);
@@ -331,18 +332,30 @@ function salvaInLocale(dati) {
   const tx = db.transaction("voci", "readwrite");
   const store = tx.objectStore("voci");
 
-  store.add({
-    ...dati,
-    timestamp: Date.now()
-  });
+  if (idInModifica !== null) {
+    // UPDATE
+    store.put({
+      id: idInModifica,
+      ...dati,
+      timestamp: Date.now()
+    });
+  } else {
+    // INSERT
+    store.add({
+      ...dati,
+      timestamp: Date.now()
+    });
+  }
 
   tx.oncomplete = () => {
+    idInModifica = null;
     mostraToast();
     resetForm();
+    mostraElenco(); // refresh lista
   };
 
   tx.onerror = () => {
-    alert("Errore nel salvataggio dei dati");
+    alert("Errore nel salvataggio");
   };
 }
 
@@ -384,9 +397,7 @@ function mostraElenco() {
       return;
     }
 
-    // ultimi inseriti in alto
     dati.sort((a, b) => b.timestamp - a.timestamp);
-
     contenitore.innerHTML = "";
 
     dati.forEach(v => {
@@ -399,6 +410,10 @@ function mostraElenco() {
         ${v.num ? v.num + " " + v.tipo + " – " : ""}
         ${v.testo || ""}
         ${v.scala ? "<br>Scala: " + v.scala : ""}
+        <div style="margin-top:8px;">
+          <button onclick="modificaVoce(${v.id})">✏️</button>
+          <button onclick="cancellaVoce(${v.id})">🗑️</button>
+        </div>
       `;
 
       contenitore.appendChild(div);
@@ -410,6 +425,41 @@ function mostraElenco() {
   };
 }
   
+function cancellaVoce(id) {
+  if (!confirm("Vuoi cancellare questa voce?")) return;
+
+  const tx = db.transaction("voci", "readwrite");
+  const store = tx.objectStore("voci");
+  store.delete(id);
+
+  tx.oncomplete = () => {
+    mostraElenco();
+  };
+}
+
+  function modificaVoce(id) {
+  const tx = db.transaction("voci", "readonly");
+  const store = tx.objectStore("voci");
+  const richiesta = store.get(id);
+
+  richiesta.onsuccess = () => {
+    const v = richiesta.result;
+    if (!v) return;
+
+    idInModifica = v.id;
+
+    document.getElementById("giorno").value = v.giorno;
+    document.getElementById("ora").value = v.ora;
+    document.getElementById("num").value = v.num || "";
+    document.getElementById("tipo").value = v.tipo || "";
+    document.getElementById("categoria").value = v.categoria;
+    document.getElementById("scala").value = v.scala || "";
+    document.getElementById("testo").value = v.testo || "";
+
+    gestisciCategoria();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   aggiornaIntestazioneGiorno();
@@ -422,6 +472,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
+
 
 
 
